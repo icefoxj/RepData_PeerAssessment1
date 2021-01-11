@@ -14,7 +14,8 @@ file **actitivy.csv** is extracted from the zip file and then loaded in the **da
 The column **date** is converted from s character to a date class and a subset of the **data**
 variable is created, filtering the row where **steps** column is NA
 
-```{r loadingdata,echo=TRUE,warning=FALSE,message=FALSE}
+
+```r
 library(dplyr)
 library(rockchalk)
 library(ggplot2)
@@ -32,7 +33,8 @@ grouped by **date** and then summarized taking the **sum of steps** for each day
 The **mean** and **median** variables was calculated using **mean()** and **median()** 
 functions in the column summarized in the previous step.
 
-```{r meantotalstepperday, warning=FALSE, echo=TRUE,message=FALSE,fig.path="./figure/"}
+
+```r
 totalperday <- dataclean %>% group_by(date) %>% summarise(sumsteps=sum(steps))
 mean <- mean(totalperday$sumsteps)
 median <- median(totalperday$sumsteps)
@@ -40,8 +42,10 @@ hist(totalperday$sumsteps,
      xlab="Number of steps by day",main="Total number of steps taken per day",breaks=10)
 ```
 
+![](./figure/meantotalstepperday-1.png)<!-- -->
+
 The mean of the total number of steps taken per day
-is **`r sprintf("%.1f",mean)`**, and the median is **`r sprintf("%.1f",median)`**
+is **10766.2**, and the median is **10765.0**
 
 
 ## What is the average daily activity pattern?
@@ -50,14 +54,17 @@ For this question, first the data(using again the data filtered - **dataclean**)
 grouped by **interval** and then summarized taking the **mean of steps** for each interval.  
 The **maximum** value was calculated using **filter()** function in the column summarized in the previous step. 
 
-```{r average5minutes, warning=FALSE, echo=TRUE,message=FALSE,fig.path="./figure/"}
+
+```r
 meanperinterval <- dataclean %>% group_by(interval) %>% summarise(meansteps=mean(steps))
 maxinterval <- meanperinterval %>% filter(meansteps==max(meansteps))
 plot(meanperinterval$interval,meanperinterval$meansteps,type="l",xlab="Interval",
      ylab="Average number of steps",main="Daily average number of steps")
 ```
 
-The maximum number of steps occurs in interval **`r maxinterval[1,1]`**
+![](./figure/average5minutes-1.png)<!-- -->
+
+The maximum number of steps occurs in interval **835**
 
 ## Imputing missing values
 
@@ -69,7 +76,8 @@ question (**meanperinterval**). The column **meansteps** was rounded and then co
 Using the **mutate()** function, the NA values have been replaced with **meansteps** values. Than the 
 columns was filtered and the arranged to stay equals the original data.
 
-```{r missingvalues, warning=FALSE, echo=TRUE,message=FALSE,fig.path="./figure/"}
+
+```r
 totalNAs = sum(is.na(data$steps))
 percent = (totalNAs/length(data))/100
 dataimputed <- merge(data,meanperinterval,by="interval")
@@ -84,11 +92,13 @@ hist(totalperday$sumsteps,
      xlab="Number of steps by day",main="Total number of steps taken per day",breaks=10)
 ```
 
-The total number of missing values is **`r totalNAs`**. 
-It's **`r sprintf("%.2f",percent)` %** of the total data (**`r length(data[,1])`** rows).   
+![](./figure/missingvalues-1.png)<!-- -->
+
+The total number of missing values is **2304**. 
+It's **7.68 %** of the total data (**17568** rows).   
 
 The mean of the total number of steps taken per day, using the new data with imputed values, 
-is **`r sprintf("%.1f",mean)`**, and the median is **`r sprintf("%.1f",median)`**  
+is **9369.2**, and the median is **10395.0**  
 The imputed data changed the mean and the median of the data.
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -97,7 +107,8 @@ To analyze the differences in activity patterns between weekdays and weekends fi
 was created. Than the labels have been grouped in **weekday** and **weekend** in factor column.  
 GGPLOT2 was used to create the plot, using facet to create two plots, one for each factor. 
 
-```{r differences,warning=FALSE,echo=TRUE,message=FALSE,results='hide',fig.path="./figure/"}
+
+```r
 dataimputed$weekday <- as.POSIXlt(dataimputed$date)$wday
 dataimputed$weekday <- as.factor(dataimputed$weekday)
 dataimputed$weekday <- combineLevels(dataimputed$weekday,levs=c("1","2","3","4","5"),newLabel = c("weekday"))
@@ -110,5 +121,7 @@ ggplot(meanperintervalweekday,aes(interval,meansteps)) +
   ggtitle("Average number of steps by interval") + 
   labs(y="Average number of steps",x="Interval")
 ```
+
+![](./figure/differences-1.png)<!-- -->
 
 We can see clearly that are more activities in weekend, besides a peak of activities in the morning in weekdays.
